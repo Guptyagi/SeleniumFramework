@@ -1,4 +1,5 @@
-﻿using OpenQA.Selenium;
+﻿using Fujitsu.OrangeAutomation.Base;
+using OpenQA.Selenium;
 using OpenQA.Selenium.Chrome;
 using System;
 using System.Collections.Generic;
@@ -10,57 +11,50 @@ using WebDriverManager.DriverConfigs.Impl;
 
 namespace Fujitsu.OrangeAutomation
 {
-    public class LoginTest
+    public class LoginTest : WebDriverWrapper
     {
+        
 
 
-        [Test]
-        public void ValidCredentialTest()
+        [Test, Order(1)]
+        [TestCase("Admin","admin123", "https://opensource-demo.orangehrmlive.com/index.php/dashboard")]
+        [TestCase("Admin","admin123", "https://opensource-demo.orangehrmlive.com/index.php/dashboard")]
+        public void ValidCredentialTest(string username, string password, string expectedURL)
         {
-            new DriverManager().SetUpDriver(new ChromeConfig(), version: "99.0.4844.51");
-            IWebDriver driver = new ChromeDriver();
-            driver.Manage().Window.Maximize();
-            driver.Manage().Timeouts().ImplicitWait = TimeSpan.FromSeconds(40);
-
-            //Navigatr to URL
-            driver.Url = "https://opensource-demo.orangehrmlive.com";
+            
 
             //Enter UserName
 
-            driver.FindElement(By.XPath("//input[@id='txtUsername']")).SendKeys("Admin");
+            driver.FindElement(By.XPath("//input[@id='txtUsername']")).SendKeys(username);
 
-            driver.FindElement(By.XPath("//input[@id='txtPassword']")).SendKeys("admin123");
+            driver.FindElement(By.XPath("//input[@id='txtPassword']")).SendKeys(password);
 
             driver.FindElement(By.XPath("//input[@id='btnLogin']")).Click();
 
             string actualURL = driver.Url;
 
-            Assert.That(actualURL, Is.EqualTo("https://opensource-demo.orangehrmlive.com/index.php/dashboard"));
+            Assert.That(actualURL, Is.EqualTo(expectedURL));
 
 
         }
-        [Test]
+        [Test, Order(2)]
+        [TestCase("John", "Wick", "Invalid credentials")]
+        [TestCase("Peter", "England", "Invalid credentials")]
 
-        public void InvalidCredentialTest()
+        public void InvalidCredentialTest(string username, string password, string expectedError)
         {
-            new DriverManager().SetUpDriver(new ChromeConfig(), version: "99.0.4844.51");
-            IWebDriver driver = new ChromeDriver();
-            driver.Manage().Window.Maximize();
-            driver.Manage().Timeouts().ImplicitWait = TimeSpan.FromSeconds(40);
-            //Navigatr to URL
-            driver.Url = "https://opensource-demo.orangehrmlive.com";
-
+            
             //Enter UserName
 
-            driver.FindElement(By.XPath("//input[@id='txtUsername']")).SendKeys("Admin");
+            driver.FindElement(By.XPath("//input[@id='txtUsername']")).SendKeys(username);
 
-            driver.FindElement(By.XPath("//input[@id='txtPassword']")).SendKeys("admin23");
+            driver.FindElement(By.XPath("//input[@id='txtPassword']")).SendKeys(password);
 
             driver.FindElement(By.XPath("//input[@id='btnLogin']")).Click();
 
             String actualError = driver.FindElement(By.Id("spanMessage")).Text;
 
-            Assert.That(actualError, Is.EqualTo("Invalid credentials"));
+            Assert.That(actualError, Is.EqualTo(expectedError));
 
 
         }
